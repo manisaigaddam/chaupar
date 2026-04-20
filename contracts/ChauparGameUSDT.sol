@@ -28,7 +28,7 @@ contract ChauparGameUSDT is ReentrancyGuard {
 
     uint256 public constant MIN_BET = 1e6;       // 1 USDT0 (6 decimals)
     uint256 public constant MAX_BET = 10e6;      // 10 USDT0
-    uint256 public constant MAX_WIN = 100e6;     // 100 USDT0
+    uint256 public constant MAX_WIN = 1000e6;    // 1000 USDT0
     uint256 public constant TIMEOUT_DURATION = 10 minutes;
     uint8 public constant MAX_ROUNDS = 52;
     uint8 public constant CARD_MIN = 2;
@@ -163,7 +163,7 @@ contract ChauparGameUSDT is ReentrancyGuard {
         lowerOrSameMultipliers[13] = 10426;
         lowerOrSameMultipliers[14] = 9600;
 
-        exposureLimit = 500e6; // 500 USDT0
+        exposureLimit = 5000e6; // 5000 USDT0
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -187,7 +187,7 @@ contract ChauparGameUSDT is ReentrancyGuard {
     function startGame(uint256 amount) external nonReentrant whenNotPaused oneRoundOnly {
         if (amount < MIN_BET || amount > MAX_BET) revert InvalidBetAmount();
 
-        uint256 maxWin = amount * 10; // Max 10x payout cap
+        uint256 maxWin = amount * 100; // Max 100x payout cap
         uint256 worstCaseNet = maxWin > amount ? maxWin - amount : 0;
         if (treasuryBalance < worstCaseNet) revert InsufficientTreasury();
         if (currentExposure + worstCaseNet > exposureLimit) revert ExposureLimitExceeded();
@@ -314,7 +314,7 @@ contract ChauparGameUSDT is ReentrancyGuard {
         if (winAmount > MAX_WIN) winAmount = MAX_WIN;
 
         escrowBalance -= round.betAmount;
-        uint256 worstCaseNet = round.betAmount * 10;
+        uint256 worstCaseNet = round.betAmount * 100;
         worstCaseNet = worstCaseNet > round.betAmount ? worstCaseNet - round.betAmount : 0;
         if (currentExposure >= worstCaseNet) currentExposure -= worstCaseNet;
 

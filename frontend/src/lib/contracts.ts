@@ -56,7 +56,7 @@ export const HTTP_URLS: Record<SupportedChainId, string> = {
     [confluxEspaceTestnet.id]: 'https://evmtestnet.confluxrpc.com',
 };
 
-export function getChainById(chainId: SupportedChainId) {
+export function getChainById(_chainId: SupportedChainId) {
     return confluxEspaceTestnet;
 }
 

@@ -7,7 +7,7 @@ async function main() {
   // Faucet USDT0 on Conflux eSpace Testnet (6 decimals)
   const USDT_ADDRESS = "0x4d1beb67e8f0102d5c983c26fdf0b7c6fff37a0c";
   const USDT_DECIMALS = 6;
-  const INITIAL_LIQUIDITY = 100n * 10n ** 6n; // 100 USDT0
+  const INITIAL_LIQUIDITY = 1000n * 10n ** 6n; // 1000 USDT0
 
   console.log(`\n🚀 Deploying ChauparGameUSDT to ${network}...`);
   console.log(`📍 Deployer: ${deployer.address}`);
@@ -52,7 +52,7 @@ async function main() {
   console.log(`✅ House pool funded!`);
 
   // Set exposure limit
-  const exposureLimit = 500n * 10n ** 6n; // 500 USDT0
+  const exposureLimit = 5000n * 10n ** 6n; // 5000 USDT0
   const exposureTx = await game.setExposureLimit(exposureLimit);
   await exposureTx.wait();
   console.log(`✅ Exposure limit set to ${Number(exposureLimit) / 1e6} USDT0`);

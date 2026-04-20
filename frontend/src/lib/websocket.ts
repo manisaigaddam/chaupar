@@ -343,7 +343,5 @@ export function useContractEvents({
         onRoundEnded,
     ]);
 
-    return {
-        isConnected: !!clientRef.current,
-    };
+    return;
 }

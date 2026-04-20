@@ -161,7 +161,7 @@ export interface GameState {
 }
 
 // Create the store
-export const useGameStore = create<GameState>((set, get) => ({
+export const useGameStore = create<GameState>((set, _get) => ({
     // Initial state — USDT0 defaults
     status: 'idle',
     roundId: null,

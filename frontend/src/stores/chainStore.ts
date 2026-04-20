@@ -11,7 +11,7 @@ interface ChainState {
 
 export const useChainStore = create<ChainState>()(
     persist(
-        (set, get) => ({
+        (set, _get) => ({
             activeChainId: DEFAULT_CHAIN_ID,
             setActiveChain: (chainId) => set({ activeChainId: chainId }),
             getChainName: () => 'Conflux eSpace Testnet',

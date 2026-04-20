@@ -1,6 +1,6 @@
 'use client';
 
-import { CardHistoryEntry, GANJIFA_FACES, GANJIFA_SUITS } from '@/stores/gameStore';
+import { CardHistoryEntry, GANJIFA_FACES } from '@/stores/gameStore';
 import { motion } from 'framer-motion';
 
 // Get display rank

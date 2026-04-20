@@ -151,17 +151,9 @@ export function Profile({ isOpen, onClose }: ProfileProps) {
                   href="https://efaucet.confluxnetwork.org/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-zinc-400 text-sm hover:text-white transition-colors block"
-                >
-                  Get testnet CFX (gas) →
-                </a>
-                <a
-                  href="https://faucet.confluxnetwork.org/"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="text-amber-400/80 text-sm hover:text-amber-300 transition-colors block"
                 >
-                  Get testnet USDT0 (betting) →
+                  Get testnet tokens (CFX + USDT0) →
                 </a>
                 <a
                   href={`https://evmtestnet.confluxscan.io/address/${address}`}

@@ -13,6 +13,7 @@ import { formatEther, maxUint256 } from 'viem';
 import { useAccount, useBalance, useReadContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { ActiveRoundPopup, PopupType } from './ActiveRoundPopup';
 import { Card } from './Card';
+import { GameOverModal } from './GameOverModal';
 import { HistoryTab } from './HistoryTab';
 import { HousePoolTab } from './HousePoolTab';
 import { Button } from './ui/button';
@@ -34,6 +35,14 @@ const shortenAddress = (address: string) => {
 };
 
 type ActiveTab = 'game' | 'pool';
+
+interface GameOverData {
+  endReason: 'cashout' | 'wrong_prediction' | 'timeout';
+  betAmount: bigint;
+  winAmount: bigint;
+  multiplier: number;
+  rounds: number;
+}
 
 export function HiloGame() {
   const { login, logout, authenticated, user, ready } = usePrivy();
@@ -172,6 +181,7 @@ export function HiloGame() {
       const hasRound = roundInfo[1] as boolean;
       const timeRemainingValue = Number(roundInfo[9]);
 
+      // @ts-ignore - experimental lint rule
       setHasCheckedActiveRound(true);
 
       if (hasRound) {
@@ -194,6 +204,7 @@ export function HiloGame() {
       refetchUsdtBalance();
       refetchAllowance();
       setLoading(false);
+      // @ts-ignore - experimental lint rule
       setIsApproving(false);
       // Close popups after successful exit transaction
       setShowResumePopup(false);
@@ -242,17 +253,38 @@ export function HiloGame() {
     setTimeout(() => setShowResult(null), 1500);
   }, [setShowResult]);
 
+  // Game over modal state
+  const [gameOverData, setGameOverData] = useState<GameOverData | null>(null);
+
   const handleRoundEnded = useCallback((event: RoundEndedEvent) => {
     console.log('🏁 WebSocket RoundEnded:', event);
     if (event.endReason === 'cashout') {
-      soundManager.chips();
+      soundManager.cashout();
     } else if (event.endReason === 'wrong_prediction') {
       soundManager.lose();
     }
-    resetGame();
+
+    // Show game over modal instead of instant reset
+    const reason = event.endReason === 'cashout' ? 'cashout'
+      : event.endReason === 'timeout' ? 'timeout'
+      : 'wrong_prediction';
+
+    setGameOverData({
+      endReason: reason,
+      betAmount: event.betAmount,
+      winAmount: event.winAmount,
+      multiplier: Number(event.finalMultiplierBps),
+      rounds: event.finalRound,
+    });
+
     refetchCfxBalance();
     refetchUsdtBalance();
-  }, [resetGame, refetchCfxBalance, refetchUsdtBalance]);
+  }, [refetchCfxBalance, refetchUsdtBalance]);
+
+  const handleGameOverDismiss = useCallback(() => {
+    setGameOverData(null);
+    resetGame();
+  }, [resetGame]);
 
   // Subscribe to WebSocket events
   useContractEvents({
@@ -270,6 +302,7 @@ export function HiloGame() {
       const msg = writeError.message.toLowerCase();
       if (msg.includes('timeout') || msg.includes('roundtimedout') || msg.includes('timed out')) {
         console.log('⏰ Timeout error detected:', msg);
+        // @ts-ignore - experimental lint rule
         setPopupType('timeout_operation');
         setShowExitPopup(true);
         resetWrite();
@@ -295,13 +328,21 @@ export function HiloGame() {
   const parseContractError = (error: Error | null): string => {
     if (!error) return '';
     const msg = error.message.toLowerCase();
+    if (msg.includes('user rejected') || msg.includes('user denied')) return 'Transaction cancelled by user.';
+    if (msg.includes('invalidbetamount')) return 'Bet must be between 1–10 USDT0.';
+    if (msg.includes('playerhasactiveround')) return 'You already have an active game. Resume or exit first.';
     if (msg.includes('insufficienttreasury')) return 'House pool treasury is low. Try a smaller bet.';
-    if (msg.includes('underflow') || msg.includes('overflow')) return 'Transaction failed: Check treasury funds.';
-    if (msg.includes('user rejected')) return 'Transaction cancelled.';
-    if (msg.includes('insufficient funds')) return 'Insufficient USDT0 balance for this bet.';
-    if (msg.includes('invalidbetamount')) return 'Bet must be between 1-10 USDT0.';
-    if (msg.includes('erc20')) return 'USDT0 transfer failed. Check balance and approval.';
-    return error.message.slice(0, 100);
+    if (msg.includes('exposurelimitexceeded')) return 'House pool exposure limit reached. Try later.';
+    if (msg.includes('roundtimedout') || msg.includes('timed out')) return 'Your round has timed out. Collect your funds.';
+    if (msg.includes('invalidprediction')) return 'Can\'t predict higher on Ace or lower on 2.';
+    if (msg.includes('maxroundsreached')) return 'Maximum 52 rounds reached. Cash out!';
+    if (msg.includes('insufficientshares')) return 'Not enough LP shares to withdraw.';
+    if (msg.includes('insufficientliquidity')) return 'Pool liquidity locked in active games.';
+    if (msg.includes('insufficient funds') || msg.includes('exceeds balance')) return 'Not enough USDT0 for this bet.';
+    if (msg.includes('erc20') || msg.includes('transfer')) return 'USDT0 transfer failed. Check balance & approval.';
+    if (msg.includes('underflow') || msg.includes('overflow')) return 'Transaction math error. Try a different amount.';
+    if (msg.includes('execution reverted')) return 'Transaction reverted. Please try again.';
+    return error.message.slice(0, 120);
   };
 
   // ══════════════════════════════════════════════════════════
@@ -521,34 +562,55 @@ export function HiloGame() {
     <div className="min-h-screen bg-black text-white flex flex-col">
 
       {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-zinc-800">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-lg tracking-tight font-serif" style={{ fontFamily: 'Cormorant Garamond, serif' }}>चौपड़</span>
-          <span className="font-bold text-lg tracking-tight">Chaupar</span>
-          <span className="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-400">Conflux</span>
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border-b border-zinc-800 gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-lg tracking-tight" style={{ fontFamily: 'Cormorant Garamond, serif' }}>चौपड़</span>
+            <span className="font-bold text-lg tracking-tight">Chaupar</span>
+            <span className="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-400">Conflux</span>
+          </div>
+          {/* X button visible on mobile next to brand */}
+          <div className="sm:hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const inActiveGame = ['starting', 'ready', 'predicting', 'won'].includes(status);
+                if (inActiveGame && roundId) {
+                  setPopupType('exit_x_click');
+                  setShowExitPopup(true);
+                } else {
+                  router.push('/');
+                }
+              }}
+              className="text-zinc-500 hover:text-white -mr-2"
+            >
+              ✕
+            </Button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Dual Balance */}
-          <div className="flex items-center gap-2 bg-zinc-900/80 rounded-lg px-3 py-2 border border-zinc-800">
-            <span className="text-amber-400 text-sm font-medium">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+          {/* Dual Balance — stacks on mobile */}
+          <div className="flex items-center gap-1.5 sm:gap-2 bg-zinc-900/80 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-zinc-800 flex-shrink-0">
+            <span className="text-amber-400 text-xs sm:text-sm font-medium whitespace-nowrap">
               {usdtBalance} <span className="text-[10px] text-amber-400/70">USDT0</span>
             </span>
-            <div className="w-px h-4 bg-zinc-700" />
-            <span className="text-zinc-500 text-xs">
+            <div className="w-px h-3 sm:h-4 bg-zinc-700" />
+            <span className="text-zinc-500 text-[10px] sm:text-xs whitespace-nowrap">
               {cfxBalance ? parseFloat(formatEther(cfxBalance.value)).toFixed(2) : '0'} CFX
             </span>
-            <div className="w-px h-4 bg-zinc-700" />
+            <div className="w-px h-3 sm:h-4 bg-zinc-700" />
             <button
               onClick={handleCopyAddress}
-              className="flex items-center gap-1 text-sm text-zinc-500 hover:text-white transition-colors"
+              className="flex items-center gap-1 text-zinc-500 hover:text-white transition-colors flex-shrink-0"
             >
-              <span className="text-xs">{shortenAddress(address || '')}</span>
-              <span className="text-xs">{copied ? '✓' : '📋'}</span>
+              <span className="text-[10px] sm:text-xs whitespace-nowrap">{shortenAddress(address || '')}</span>
+              <span className="text-[10px] sm:text-xs">{copied ? '✓' : '📋'}</span>
             </button>
           </div>
 
-          {/* X button */}
+          {/* X button — hidden on mobile (shown in brand row) */}
           <Button
             variant="ghost"
             size="sm"
@@ -561,7 +623,7 @@ export function HiloGame() {
                 router.push('/');
               }
             }}
-            className="text-zinc-500 hover:text-white"
+            className="text-zinc-500 hover:text-white hidden sm:inline-flex"
           >
             ✕
           </Button>
@@ -594,7 +656,9 @@ export function HiloGame() {
 
       {/* Pool Tab */}
       {activeTab === 'pool' && (
-        <HousePoolTab />
+        <div className="flex-1 overflow-y-auto">
+          <HousePoolTab />
+        </div>
       )}
 
       {/* Game Tab */}
@@ -657,18 +721,23 @@ export function HiloGame() {
 
             {/* Prediction Buttons */}
             {status === 'ready' && currentCard && (
-              <div className="flex gap-4">
+              <div className="flex gap-3 sm:gap-4">
                 <Button
                   size="lg"
                   variant="outline"
                   onClick={() => handlePredict(false)}
                   disabled={isPending || isTxLoading || currentCard.value === 2}
-                  className="px-8 py-6 text-lg border-zinc-700 hover:bg-zinc-800 hover:border-zinc-500"
+                  className="px-4 sm:px-8 py-5 sm:py-6 border-zinc-700 hover:bg-zinc-800 hover:border-zinc-500 flex flex-col items-center gap-0.5"
                 >
                   {isPending || isTxLoading ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <span>↓ <span className="text-sm">नीचा</span> Lower</span>
+                    <>
+                      <span className="text-base sm:text-lg">↓ नीचा Lower</span>
+                      {currentCard.value > 2 && lowerMultiplier > 0 && (
+                        <span className="text-[10px] sm:text-xs text-zinc-500">{formatMultiplier(lowerMultiplier)}x</span>
+                      )}
+                    </>
                   )}
                 </Button>
                 <Button
@@ -676,12 +745,17 @@ export function HiloGame() {
                   variant="outline"
                   onClick={() => handlePredict(true)}
                   disabled={isPending || isTxLoading || currentCard.value === 14}
-                  className="px-8 py-6 text-lg border-zinc-700 hover:bg-zinc-800 hover:border-zinc-500"
+                  className="px-4 sm:px-8 py-5 sm:py-6 border-zinc-700 hover:bg-zinc-800 hover:border-zinc-500 flex flex-col items-center gap-0.5"
                 >
                   {isPending || isTxLoading ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <span>↑ <span className="text-sm">ऊँचा</span> Higher</span>
+                    <>
+                      <span className="text-base sm:text-lg">↑ ऊँचा Higher</span>
+                      {currentCard.value < 14 && higherMultiplier > 0 && (
+                        <span className="text-[10px] sm:text-xs text-zinc-500">{formatMultiplier(higherMultiplier)}x</span>
+                      )}
+                    </>
                   )}
                 </Button>
               </div>
@@ -738,7 +812,19 @@ export function HiloGame() {
                   <input
                     type="number"
                     value={betAmount}
-                    onChange={(e) => setBetAmount(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const num = parseFloat(val);
+                      if (val === '' || val === '0') { setBetAmount(val); return; }
+                      if (isNaN(num)) return;
+                      if (num > 10) { setBetAmount('10'); return; }
+                      setBetAmount(val);
+                    }}
+                    onBlur={() => {
+                      const num = parseFloat(betAmount);
+                      if (isNaN(num) || num < 1) setBetAmount('1');
+                      else if (num > 10) setBetAmount('10');
+                    }}
                     className="w-full bg-transparent border-none text-2xl font-bold text-white
                       text-center focus:outline-none"
                     step="1"
@@ -847,6 +933,17 @@ export function HiloGame() {
           setPopupType(null);
         }}
         isExiting={isLoading}
+      />
+
+      {/* Game Over Modal */}
+      <GameOverModal
+        isOpen={!!gameOverData}
+        endReason={gameOverData?.endReason || null}
+        betAmount={gameOverData?.betAmount || BigInt(0)}
+        winAmount={gameOverData?.winAmount || BigInt(0)}
+        multiplier={gameOverData?.multiplier || 10000}
+        rounds={gameOverData?.rounds || 0}
+        onNewGame={handleGameOverDismiss}
       />
     </div>
   );

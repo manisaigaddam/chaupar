@@ -83,7 +83,7 @@ class SoundManager {
             const sound = getSound(name);
             sound.volume(soundConfig[name].volume * this.volume);
             sound.play();
-        } catch (error) {
+        } catch {
             // Silently fail - sounds are non-critical
             console.warn(`Sound unavailable: ${name}`);
         }
