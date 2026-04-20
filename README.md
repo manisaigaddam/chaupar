@@ -1,81 +1,81 @@
 <div align="center">
   <img src="frontend/public/logo.png" alt="Chaupar Logo" width="120" />
-  <h1>Chaupar (चौपड़)</h1>
-  <p><strong>A Provably Fair, On-Chain Prediction Game on Conflux eSpace</strong></p>
-  
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-  [![Conflux](https://img.shields.io/badge/Network-Conflux_eSpace-blue.svg)](https://confluxnetwork.org/)
-  [![USDT0](https://img.shields.io/badge/Token-USDT0-green.svg)]()
 </div>
 
-<br />
+<br/>
+
+# Chaupar (चौपड़)
+
+A provably fair, Ganjifa-themed prediction game on Conflux eSpace featuring a decentralized Liquidity Pool house and a strict 96% RTP mathematical core.
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Conflux](https://img.shields.io/badge/built%20on-Conflux-blue)](https://confluxnetwork.org)
+[![Hackathon](https://img.shields.io/badge/Global%20Hackfest%202026-green)](https://github.com/conflux-fans/global-hackfest-2026)
 
 ## Overview
 
-Chaupar is an advanced Web3 prediction game built entirely on Conflux eSpace. Instead of building just another generic "Hi-Lo" clone, we have reinvented the mathematical core into a decentralized **Liquidity Pool House** and wrapped the UI in the rich, ancient heritage of Indian **Ganjifa** aesthetics. Players access a blazing-fast, transparent betting experience with a strict 96% RTP, while DeFi users deposit USDT0 to passively farm the house edge.
+Traditional Web3 casinos suffer from black-box RNG and centralized house reserves. Chaupar solves this by reinventing the mathematical core of the game around a decentralized **Liquidity Pool House** and wrapping it in the rich, ancient heritage of Indian **Ganjifa** aesthetics. Players access a blazing-fast, transparent betting experience on Conflux eSpace, while DeFi users deposit USDT0 to passively farm the house edge.
 
 ## Hackathon
 
-**Global Hackfest 2026** (2026-03-23 – 2026-04-20)
+Global Hackfest 2026 (2026-03-23 – 2026-04-20)
 
 ## Team
 
-- **Manisai** (GitHub: [@manisaigaddam](https://github.com/manisaigaddam) | Discord: manisai#5791) - Full Stack / Smart Contracts
-- **Manikanta** (GitHub: [@manialex7569](https://github.com/manialex7569) | Discord: manikanta#5791) - UI/UX & Architecture
+- Manisai (GitHub: [@manisaigaddam](https://github.com/manisaigaddam), Discord: manisai#5791) - Full Stack / Blockchain
+- Manikanta (GitHub: [@manialex7569](https://github.com/manialex7569), Discord: manikanta#5791) - UI/UX & Architecture
 
 ## Problem Statement
 
-Web3 gaming is saturated with westernized casino templates that rely on off-chain black-box RNG and centralized, privileged house treasuries. This creates three critical industry problems:
-1. **The Casino Monopoly**: Liquidity and yields are concentrated at the top.
-2. **The Gas Bottleneck**: High-frequency predictive gaming is impossible on L1 Mainnets due to scaling costs.
-3. **The Cultural Gap**: The APAC region represents the largest gaming demographic, yet lacks culturally native Web3 products.
+Web3 gaming is saturated with generic, westernized casino templates that rely on off-chain black-box RNG and centralized, privileged house treasuries. This creates three critical friction points in the industry:
+1. **The Casino Monopoly**: Liquidity and yields are concentrated at the top with the casino owners, alienating decentralized finance participants.
+2. **The Gas Bottleneck**: High-frequency predictive gaming is impossible on Layer-1 Mainnets due to scaling costs and block times.
+3. **The Cultural Gap**: The APAC region represents the largest gaming demographic globally, yet lacks culturally native Web3 products that resonate with local heritage.
 
 ## Solution
 
-**Chaupar** specifically avoids these pitfalls by operating as a decentralized, dual-sided marketplace governed entirely by an immutable Solidity construct on Conflux eSpace.
-- **In Chaupar, *you* are the house.** By democratizing the House Edge (4%) into an open LP pool, any DeFi user can earn passive yields directly from global player volume.
+Chaupar operates as a decentralized dual-sided marketplace governed entirely by an immutable Solidity construct on Conflux eSpace.
+- **You Are The House**: By democratizing the House Edge (4%) into an open LP pool, DeFi users earn passive yields directly from global player volume.
 - **Bulletproof State Recovery**: Drop a WebSocket connection? Close your browser mid-bet? The Chaupar frontend reads `hasRound` states directly from the Conflux chain, seamlessly restoring paused P2E sessions without losing player funds.
 - **Authentic Localization**: We bring the ancient Indian game of chance on-chain with authentic Hindi localization, Devanagari numerals, and classical Indian soundscapes to deeply penetrate the APAC market.
 
 ## Go-to-Market Plan
 
-Chaupar is designed to penetrate the nascent Conflux gaming sector through a three-pronged approach:
+Chaupar is designed to penetrate the nascent Conflux gaming sector through a three-pronged strategy:
 
 1. **The Liquidity Flywheel**  
-   We initially market to DeFi degens seeking single-sided staking yields. Deep liquidity enables higher betting caps, which attracts high-roller gamers, feeding directly back into LP yield maximization.
+   We initially market to DeFi degens seeking single-sided staking yields. Deep liquidity enables higher betting caps without risking insolvency, which attracts high-roller gamers, feeding directly back into LP yield maximization.
    
 2. **Cultural Moat in APAC**
-   By utilizing deep aesthetic ties to Indian board systems (चौपड़) rather than standard playing cards, we create sticky, culturally prideful viral loops unreplicable by western white-label casinos.
+   By utilizing deep aesthetic ties to Indian board systems (चौपड़) rather than standard playing cards, we create sticky, culturally prideful viral loops that tap into the massive APAC gaming demographic—creating a localized product that generic white-label casinos cannot replicate.
 
-3. **Infrastructural Roadmap**
-   - **Phase 1 (Current)**: eSpace Testnet MVP proving the mathematical edge & UX.
+3. **Infrastructural Expansion**
+   - **Phase 1 (Current)**: eSpace Testnet MVP proving the mathematical edge, LP architecture, and UX.
    - **Phase 2**: Launching Mainnet + Verifiable Random Function (VRF) Oracles.
-   - **Phase 3**: Integration of ERC-4337 Account Abstraction. Paymasters will leverage the House Pool yields to implicitly subsidize 100% of player gas fees—pushing onboarding friction to absolute zero.
+   - **Phase 3**: Integration of ERC-4337 Account Abstraction. Paymasters will leverage the House Pool yields to implicitly subsidize 100% of player gas fees, dropping onboarding friction to zero.
 
 ## Conflux Integration
 
-Chaupar leverages the following Conflux features to ensure blazing-fast execution:
+Chaupar leverages the following Conflux systems to ensure blazing-fast execution:
 
-- [ ]  Core Space
-- [x]  eSpace (Deployed native Solidity contracts utilizing Conflux's EVM-compatible execution layer for sub-second block times)
-- [ ]  Cross-Space Bridge
-- [ ]  Gas Sponsorship
-- [x]  Built-in Contracts (Interactions with USDT0 ERC20 primitives)
-- [x]  Partner Integrations (Privy for frictionless pseudo-custodial Web3 Auth)
+- **Conflux eSpace**: Deployed native Solidity contracts utilizing Conflux's EVM-compatible execution layer for massive transaction throughput and sub-second confirmations.
+- **Built-in Contracts**: Heavy integrations with standard Conflux-deployed USDT0 ERC20 primitives.
+- **Privy Web3 Auth**: Frictionless pseudo-custodial wallet generation embedded directly into the frontend infrastructure for seamless user onboarding into the Conflux ecosystem.
 
 ## Features
 
-- **Strict 96% RTP Mathematics**: The smart contract calculates risk probabilities dynamically on every single card drawn. It uses fixed compound multipliers to ensure the mathematical payout ratio adheres strictly to a 96% Return-To-Player rate over infinite rounds, generating the 4% edge utilized for LP yields.
-- **Dynamic Exposure Limiting**: To protect Liquidity Providers from bankruptcy events, Chaupar dynamically caps maximum bets in real-time based on the total depth of the USDT0 pool. If the pool shrinks, max bets shrink.
-- **Decentralized Liquidity Pool**: Open to everyone. A true DeFi implementation of casino mechanics.
+- **Strict 96% RTP Mathematics** - The smart contract calculates risk probabilities dynamically on every single card drawn, computing fixed compound multipliers that yield an exact 4% house edge.
+- **Decentralized Liquidity Pool** - Deposits into the House Treasury are open to everyone, creating a true DeFi implementation of casino mechanics.
+- **Dynamic Exposure Limiting** - Real-time caps on maximum bets based on the total depth of the USDT0 pool to mechanically protect LP providers from insolvency.
+- **Session Auto-Recovery** - The React state automatically reconstructs abandoned or disconnected game states directly from the immutable blockchain events.
 
 ## Technology Stack
 
-- Frontend: React, Next.js (App Router), Zustand, Tailwind CSS, Framer Motion
-- Backend: Hardhat, Custom TypeScript Oracles (planned)
-- Blockchain: Conflux eSpace
-- Smart Contracts: Solidity (Standard ERC20 & Blockhash RNG models)
-- Web3 Integrations: Privy Web3 Auth, viem/wagmi hooks
+- **Frontend**: Next.js App Router (React), Zustand, Tailwind CSS, Framer Motion
+- **Web3 Integration**: viem / wagmi / Privy
+- **Blockchain**: Conflux eSpace Testnet
+- **Smart Contracts**: Solidity (Standard ERC20 & Blockhash RNG models)
+- **Development Environment**: Hardhat
 
 ## Setup Instructions
 
@@ -83,8 +83,8 @@ Chaupar leverages the following Conflux features to ensure blazing-fast executio
 
 - Node.js v18+
 - Git
-- Conflux wallet (Fluent, MetaMask) configured to Conflux eSpace Testnet
-- Testnet CFX and USDT0 (Available from Conflux Faucets)
+- Conflux Wallet (Fluent Wallet or MetaMask configured for Conflux eSpace Testnet)
+- Testnet CFX (for gas) and USDT0 (for betting)
 
 ### Installation
 
@@ -94,7 +94,7 @@ Chaupar leverages the following Conflux features to ensure blazing-fast executio
     cd chaupar
     ```
 
-2. Install dependencies
+2. Install frontend dependencies
     ```bash
     cd frontend
     npm install
@@ -104,76 +104,52 @@ Chaupar leverages the following Conflux features to ensure blazing-fast executio
     ```bash
     cp .env.example .env.local
     ```
-    Edit `frontend/.env.local` with your configuration:
+    Edit `frontend/.env.local` to match your target contracts:
     ```env
-    NEXT_PUBLIC_PRIVY_APP_ID="your_privy_id"
+    NEXT_PUBLIC_PRIVY_APP_ID="your_privy_app_id"
     NEXT_PUBLIC_CONTRACT_ADDRESS="0x2fB5C50e4B6F9F27b43200cB714b88A7F38882Ab"
     NEXT_PUBLIC_USDT_ADDRESS="0x4d1beb67e8f0102d5c983c26fdf0b7c6fff37a0c"
     ```
 
-4. Run the application
+4. Run the frontend application
     ```bash
     npm run dev
     ```
 
-### Testing
-
-*(Smart Contract Tests)*
-```bash
-npx hardhat test
-```
-
 ## Usage
 
-1. **Connect**: Click 'Connect Wallet' and authenticate via Privy.
-2. **Deposit LP (Optional)**: Head to the House Pool tab and deposit USDT0 to become the house.
-3. **Play**: Go to the Game tab. Ensure you have Testnet CFX (for gas) and USDT0 (for your bet). Select your wager amount and press play. Predict Higher or Lower based on the initial dealing!
-4. **Resilience**: If your browser crashes during a round, simply reopen the browser—your session auto-recovers natively via blockchain state polling.
+1. **Connect Wallet**: Click "Connect" in the application and authenticate via Privy (wallet or email).
+2. **House Pool Operations (Become the House)**: Navigate to the House Pool tab, enter an amount of USDT0, and click Deposit to earn passive yield.
+3. **Gameplay**: Go to the Game tab. Ensure you have Testnet CFX and USDT0. Select your starting Wager Amount, click Start Game, and predict whether the next Ganjifa card will be Higher or Lower.
+4. **Cash Out**: Click Cash Out at any time to claim your USDT0 winnings directly to your Conflux address.
 
 ## Demo
 
-- **Live Demo**: https://chaupar.vercel.app/
-- **Demo Video**: https://youtu.be/WBGArlqnRRk
-- **Intro Video**: https://youtu.be/Ll2LyZ-SDQE
-- **Screenshots**: See `/demo/screenshots/` folder
+- **Live Demo**: [https://chaupar.vercel.app/](https://chaupar.vercel.app/)
+- **Demo Video**: [https://youtu.be/WBGArlqnRRk](https://youtu.be/WBGArlqnRRk)
+- **Participant Intro Video**: [https://youtu.be/Ll2LyZ-SDQE](https://youtu.be/Ll2LyZ-SDQE)
+- **Screenshots**: See `/demo/screenshots/`
 
 ## Architecture
 
-The architecture divides into three highly scalable layers:
+The architecture relies on a highly scalable client-to-chain model:
 
-```mermaid
-graph TD
-    subgraph Frontend 
-        UI[Next.js App Router]
-        State[Zustand Local State]
-        Auth[Privy Web3 Auth]
-        Poller[RPC Polling Fallbacks]
-    end
-
-    subgraph Blockchain 
-        Contract[ChauparGameUSDT.sol]
-        USDT[USDT0 ERC20 Token]
-    end
-
-    UI <-->|JSON-RPC via viem| Contract
-    Auth -->|Auto-Sign Transactions| Contract
-    UI <-->|USDT0 Allowances| USDT
-    Contract <-->|Transfers/Payouts| USDT
-    Poller -.->|hasRound polling resilience| UI
-```
+1. The Next.js frontend uses `wagmi` and `viem` to craft transactions (Start, Cash Out, Bet) and sends them to the Conflux eSpace RPC. 
+2. A parallel WebSocket listener observes `PredictionResult` events to drive the UI states smoothly. 
+3. If WebSocket connection drops, a polling fallback explicitly queries the `hasRound` view function from the Solidity contract to seamlessly rebuild the user's interface.
 
 ## Smart Contracts
 
-The game utilizes fully verified EVM-compatible contracts on Conflux:
+The game utilizes fully verified EVM-compatible contracts on Conflux eSpace.
 
-- ChauparGameUSDT: `0x2fB5C50e4B6F9F27b43200cB714b88A7F38882Ab` (Conflux eSpace Testnet)
-- Base Token (USDT0): `0x4d1beb67e8f0102d5c983c26fdf0b7c6fff37a0c`
+- **ChauparGameUSDT**: `0x2fB5C50e4B6F9F27b43200cB714b88A7F38882Ab` (Testnet)
+- **USDT0 Token**: `0x4d1beb67e8f0102d5c983c26fdf0b7c6fff37a0c` (Testnet)
 
 ## Future Improvements
 
-- Implementation of True Verifiable Random Function (VRF).
-- Expanding ERC-4337 Account Abstraction paymasters utilizing the Liquidity Pool yield to fully sponsor player gas.
-- Launching Mainnet multi-chain variants targeting EVM networks heavily focused in APAC gaming markets.
+- Implementation of True Verifiable Random Function (VRF) to replace current blockhash models.
+- Integration of ERC-4337 Account Abstraction paymasters to fully sponsor player gas fees using LP yields.
+- Expansion across mainnet multi-chain variants targeting parallel EVM networks.
 
 ## License
 
@@ -182,4 +158,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - **Conflux Network** & Global Hackfest 2026 Organizers
-- **Privy** for seamless and secure Web3 Onboarding libraries
+- **Privy** for providing rapid embedded wallet configurations.
