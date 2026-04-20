@@ -196,6 +196,10 @@ export function HiloGame() {
     }
   }, [isConnected, roundInfo, hasCheckedActiveRound, setShowExitPopup, setShowResumePopup]);
 
+  // Track pending prediction result to apply after CardRevealed
+  const [pendingResult, setPendingResult] = useState<'win' | 'lose' | null>(null);
+  const [pendingAction, setPendingAction] = useState<'cashout' | 'timeout' | null>(null);
+
   // Refetch on tx success and close popups
   useEffect(() => {
     if (isTxSuccess) {
@@ -206,15 +210,26 @@ export function HiloGame() {
       setLoading(false);
       // @ts-ignore - experimental lint rule
       setIsApproving(false);
+
+      // Synthesize GameOver Modal if websocket drops
+      if (pendingAction === 'cashout' || pendingAction === 'timeout') {
+         if (pendingAction === 'cashout') soundManager.cashout();
+         setGameOverData({
+            endReason: pendingAction,
+            betAmount: BigInt(parseTokenAmount(betAmount || '0').toString()),
+            winAmount: pendingAction === 'cashout' ? BigInt(parseTokenAmount(potentialWin || '0').toString()) : 0n,
+            multiplier: currentMultiplier,
+            rounds: roundNumber
+         });
+         setPendingAction(null);
+      }
+
       // Close popups after successful exit transaction
       setShowResumePopup(false);
       setShowExitPopup(false);
       setTimedOut(false);
     }
-  }, [isTxSuccess, refetchRoundInfo, refetchCfxBalance, refetchUsdtBalance, refetchAllowance, setLoading, setShowResumePopup, setShowExitPopup, setTimedOut]);
-
-  // Track pending prediction result to apply after CardRevealed
-  const [pendingResult, setPendingResult] = useState<'win' | 'lose' | null>(null);
+  }, [isTxSuccess, refetchRoundInfo, refetchCfxBalance, refetchUsdtBalance, refetchAllowance, setLoading, setShowResumePopup, setShowExitPopup, setTimedOut, pendingAction, betAmount, potentialWin, currentMultiplier, roundNumber]);
 
   // WebSocket event handlers
   const handleCardRevealed = useCallback((event: CardRevealedEvent) => {
@@ -473,6 +488,7 @@ export function HiloGame() {
 
     try {
       setLoading(true);
+      setPendingAction('cashout');
       soundManager.chips();
 
       writeContract({
@@ -518,6 +534,7 @@ export function HiloGame() {
       const isTimeoutPopup = popupType === 'timeout_mount' || popupType === 'timeout_operation';
 
       if (isTimeoutPopup) {
+        setPendingAction('timeout');
         writeContract({
           address: contractAddress,
           abi: HILO_GAME_ABI,
@@ -525,6 +542,7 @@ export function HiloGame() {
           args: [roundId],
         });
       } else {
+        setPendingAction('cashout');
         writeContract({
           address: contractAddress,
           abi: HILO_GAME_ABI,
