@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 
 // 4 popup types with distinct messaging
-export type PopupType = 
+export type PopupType =
   | 'resume_exit'       // Active round, no timeout - on mount
   | 'timeout_mount'     // Round timed out - on mount
   | 'exit_x_click'      // User clicked X while in active game
@@ -15,55 +15,56 @@ interface ActiveRoundPopupProps {
   potentialWin: string;
   roundNumber: number;
   currentMultiplier: number;
+  currencySymbol?: string;
   onResume: () => void;
   onExit: () => void;
-  onCancel?: () => void; // For X click exit - can cancel
+  onCancel?: () => void;
   isExiting?: boolean;
 }
 
-// Popup configuration based on type
-const popupConfig = {
+// Popup configuration based on type — uses dynamic currency
+const getPopupConfig = (symbol: string) => ({
   resume_exit: {
-    icon: '🃏',
-    title: 'Active Round Found',
-    message: 'You have an active round. Would you like to resume or cash out?',
+    icon: '🎴',
+    title: 'चालू खेल मिला / Active Round Found',
+    message: 'You have an active round. Resume or collect your winnings.',
     showResume: true,
     showCancel: false,
-    exitText: (win: string) => `Cash Out (${win} MON)`,
-    exitingText: 'Cashing Out...',
+    exitText: (win: string) => `Collect (${win} ${symbol})`,
+    exitingText: 'Collecting...',
     footerText: 'You can only have one active round at a time.',
   },
   timeout_mount: {
     icon: '⏰',
-    title: 'Round Timed Out',
+    title: 'समय समाप्त / Round Timed Out',
     message: 'Your round has timed out. Collect your winnings to start a new game.',
     showResume: false,
     showCancel: false,
-    exitText: (win: string) => `Collect ${win} MON`,
+    exitText: (win: string) => `Collect ${win} ${symbol}`,
     exitingText: 'Collecting...',
     footerText: 'Timeout occurs after 10 minutes of inactivity.',
   },
   exit_x_click: {
     icon: '🚪',
-    title: 'Exit Game?',
-    message: 'Are you sure you want to exit? You will cash out your current winnings.',
+    title: 'खेल छोड़ें? / Exit Game?',
+    message: 'Are you sure? You will cash out your current winnings.',
     showResume: false,
     showCancel: true,
-    exitText: (win: string) => `Exit & Collect ${win} MON`,
+    exitText: (win: string) => `Exit & Collect ${win} ${symbol}`,
     exitingText: 'Exiting...',
     footerText: 'You can start a new game after exiting.',
   },
   timeout_operation: {
     icon: '⏰',
-    title: 'Round Timed Out',
+    title: 'समय समाप्त / Round Timed Out',
     message: 'Your round has timed out. Collect your winnings to continue.',
     showResume: false,
     showCancel: false,
-    exitText: (win: string) => `Collect ${win} MON`,
+    exitText: (win: string) => `Collect ${win} ${symbol}`,
     exitingText: 'Collecting...',
     footerText: 'Timeout occurs after 10 minutes of inactivity.',
   },
-};
+});
 
 export function ActiveRoundPopup({
   isOpen,
@@ -71,6 +72,7 @@ export function ActiveRoundPopup({
   potentialWin,
   roundNumber,
   currentMultiplier,
+  currencySymbol = 'USDT0',
   onResume,
   onExit,
   onCancel,
@@ -78,7 +80,8 @@ export function ActiveRoundPopup({
 }: ActiveRoundPopupProps) {
   if (!isOpen) return null;
 
-  const config = popupConfig[popupType];
+  const configs = getPopupConfig(currencySymbol);
+  const config = configs[popupType];
   const formatMultiplier = (bps: number) => (bps / 10000).toFixed(2);
 
   return (
@@ -112,16 +115,16 @@ export function ActiveRoundPopup({
             {/* Round Info */}
             <div className="bg-zinc-800/50 rounded-xl p-4 mb-6 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">Round</span>
+                <span className="text-zinc-500">हाथ / Round</span>
                 <span className="text-white font-medium">#{roundNumber}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">Multiplier</span>
+                <span className="text-zinc-500">गुणा / Multiplier</span>
                 <span className="text-white font-medium">{formatMultiplier(currentMultiplier)}x</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-500">Potential Win</span>
-                <span className="text-white font-bold">{potentialWin} MON</span>
+                <span className="text-zinc-500">जीत / Potential Win</span>
+                <span className="text-amber-400 font-bold">{potentialWin} {currencySymbol}</span>
               </div>
             </div>
 
@@ -136,14 +139,14 @@ export function ActiveRoundPopup({
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Resume Game
+                  खेल जारी रखें / Resume Game
                 </motion.button>
               )}
-              
+
               <motion.button
                 className={`w-full font-bold py-3 px-6 rounded-xl transition-colors disabled:opacity-50
                   ${config.showResume || config.showCancel
-                    ? 'border border-zinc-600 text-zinc-300 hover:border-zinc-500 hover:text-white' 
+                    ? 'border border-zinc-600 text-zinc-300 hover:border-zinc-500 hover:text-white'
                     : 'bg-white text-black hover:bg-zinc-200'
                   }`}
                 onClick={onExit}
@@ -170,7 +173,7 @@ export function ActiveRoundPopup({
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Cancel
+                  रद्द करें / Cancel
                 </motion.button>
               )}
             </div>

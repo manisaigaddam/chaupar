@@ -7,3 +7,4 @@ typechain-types/
 *.log
 dist/
 out/
+scripts/generate-sounds.js

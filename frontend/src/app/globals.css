@@ -64,11 +64,13 @@ body {
 }
 
 /* Hide scrollbar but allow scrolling */
-.hide-scrollbar {
+.hide-scrollbar,
+.scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-.hide-scrollbar::-webkit-scrollbar {
+.hide-scrollbar::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
@@ -79,6 +81,14 @@ body {
 }
 
 :root {
+  /* Ganjifa Accent Palette */
+  --accent-gold: #D4AF37;
+  --accent-saffron: #FF9933;
+  --accent-indigo: #6366F1;
+  --accent-lotus: #EC4899;
+  --accent-chakra: #4B0082;
+  --panel-dark: #1A1A2E;
+
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

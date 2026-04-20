@@ -6,6 +6,7 @@
     "compile": "hardhat compile",
     "deploy:testnet": "hardhat run scripts/deploy-conflux.js --network confluxEspaceTestnet",
     "deploy:mainnet": "hardhat run scripts/deploy-conflux.js --network confluxEspace",
+    "deploy:usdt:testnet": "hardhat run scripts/deploy-usdt-game.js --network confluxEspaceTestnet",
     "deploy:local": "hardhat run scripts/deploy-conflux.js --network hardhat",
     "test": "hardhat test",
     "clean": "hardhat clean"

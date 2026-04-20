@@ -1,7 +1,8 @@
 /**
- * WebSocket Event Subscriptions - Pure On-Chain Hilo
+ * WebSocket Event Subscriptions - Pure On-Chain Chaupar
  * 
  * Listens for: RoundStarted, EntropyReady, CardRevealed, PredictionResult, RoundEnded
+ * Features: Exponential backoff, roundId-based event filtering
  */
 
 import { useEffect, useRef } from 'react';
@@ -73,13 +74,14 @@ export function createWebSocketClient(chainId: SupportedChainId = DEFAULT_CHAIN_
     return createPublicClient({
         chain,
         transport: webSocket(wsUrl, {
-            retryCount: 5,
-            retryDelay: 1000,
+            retryCount: 10,
+            retryDelay: 3000, // 3s between reconnection attempts
         }),
     });
 }
 
 // Hook for subscribing to contract events
+// Tracks active roundId to filter CardRevealed/PredictionResult events
 export function useContractEvents({
     playerAddress,
     chainId = DEFAULT_CHAIN_ID,
@@ -101,6 +103,8 @@ export function useContractEvents({
 }) {
     const clientRef = useRef<ReturnType<typeof createWebSocketClient> | null>(null);
     const unsubscribeRef = useRef<(() => void)[]>([]);
+    // Track active round to filter CardRevealed/PredictionResult by roundId
+    const activeRoundIdRef = useRef<`0x${string}` | null>(null);
 
     useEffect(() => {
         if (!enabled || !playerAddress) return;
@@ -145,6 +149,7 @@ export function useContractEvents({
                                         timestamp: args.timestamp || BigInt(0),
                                     };
                                     console.log('📢 RoundStarted event:', event);
+                                    activeRoundIdRef.current = event.roundId;
                                     onRoundStarted?.(event);
                                 }
                             } catch (err) {
@@ -202,6 +207,11 @@ export function useContractEvents({
                                     timestamp?: bigint;
                                 };
                                 if (args.roundId) {
+                                    // Filter: only process events for our active round
+                                    if (activeRoundIdRef.current && args.roundId !== activeRoundIdRef.current) {
+                                        console.log('🃏 Skipping CardRevealed for other round:', args.roundId);
+                                        return;
+                                    }
                                     const event: CardRevealedEvent = {
                                         roundId: args.roundId,
                                         roundNumber: Number(args.roundNumber || 0),
@@ -240,6 +250,11 @@ export function useContractEvents({
                                     timestamp?: bigint;
                                 };
                                 if (args.roundId) {
+                                    // Filter: only process events for our active round
+                                    if (activeRoundIdRef.current && args.roundId !== activeRoundIdRef.current) {
+                                        console.log('🎯 Skipping PredictionResult for other round:', args.roundId);
+                                        return;
+                                    }
                                     const event: PredictionResultEvent = {
                                         roundId: args.roundId,
                                         prediction: Number(args.prediction || 0),
@@ -292,6 +307,7 @@ export function useContractEvents({
                                         timestamp: args.timestamp || BigInt(0),
                                     };
                                     console.log('🏁 RoundEnded event:', event);
+                                    activeRoundIdRef.current = null;
                                     onRoundEnded?.(event);
                                 }
                             } catch (err) {

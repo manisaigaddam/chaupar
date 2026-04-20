@@ -1,7 +1,8 @@
+import { TOKEN_DECIMALS } from '@/lib/contracts';
 import { create } from 'zustand';
 
 // Card types
-export type Suit = 'spades' | 'hearts' | 'diamonds' | 'clubs';
+export type Suit = 'khadga' | 'kalasha' | 'chakra' | 'padma';
 export type Rank = '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'A';
 
 export interface Card {
@@ -26,6 +27,67 @@ export type GameStatus =
     | 'won'            // Last prediction won
     | 'lost'           // Game over - wrong prediction
     | 'cashedOut';     // Game over - player cashed out
+
+// Ganjifa suit names — mapped from contract index
+export const GANJIFA_SUITS: Record<number, { name: string; hindi: string; icon: string }> = {
+    0: { name: 'Khadga', hindi: 'खड्ग', icon: 'sword' },
+    1: { name: 'Kalasha', hindi: 'कलश', icon: 'pot' },
+    2: { name: 'Chakra', hindi: 'चक्र', icon: 'wheel' },
+    3: { name: 'Padma', hindi: 'पद्म', icon: 'lotus' },
+};
+
+// Ganjifa face card names
+export const GANJIFA_FACES: Record<number, { name: string; hindi: string }> = {
+    11: { name: 'Sipahi', hindi: 'सिपाही' },
+    12: { name: 'Rani', hindi: 'रानी' },
+    13: { name: 'Raja', hindi: 'राजा' },
+    14: { name: 'Devata', hindi: 'देवता' },
+};
+
+// Devanagari numerals
+export const DEVANAGARI_NUMERALS: Record<number, string> = {
+    2: '२', 3: '३', 4: '४', 5: '५', 6: '६', 7: '७', 8: '८', 9: '९', 10: '१०',
+};
+
+// Helper to convert card value (2-14) to rank
+export function valueToRank(value: number): Rank {
+    if (value >= 2 && value <= 10) return value.toString() as Rank;
+    if (value === 11) return 'J';
+    if (value === 12) return 'Q';
+    if (value === 13) return 'K';
+    if (value === 14) return 'A';
+    return '2';
+}
+
+// Helper to get display name for card value (Ganjifa style)
+export function valueToDisplayName(value: number): { primary: string; secondary: string } {
+    if (value >= 2 && value <= 10) {
+        return { primary: value.toString(), secondary: DEVANAGARI_NUMERALS[value] || '' };
+    }
+    const face = GANJIFA_FACES[value];
+    if (face) {
+        return { primary: face.name, secondary: face.hindi };
+    }
+    return { primary: value.toString(), secondary: '' };
+}
+
+// Helper to convert suit index to suit name
+export function indexToSuit(index: number): Suit {
+    const suits: Suit[] = ['khadga', 'kalasha', 'chakra', 'padma'];
+    return suits[index] || 'khadga';
+}
+
+// Format USDT0 amount from raw units (6 decimals)
+export function formatTokenAmount(raw: bigint | number, decimals = TOKEN_DECIMALS): string {
+    const value = typeof raw === 'number' ? raw : Number(raw);
+    return (value / Math.pow(10, decimals)).toFixed(decimals === 6 ? 2 : 4);
+}
+
+// Parse USDT0 amount to raw units
+export function parseTokenAmount(amount: string, decimals = TOKEN_DECIMALS): bigint {
+    const parsed = parseFloat(amount);
+    return BigInt(Math.floor(parsed * Math.pow(10, decimals)));
+}
 
 export interface GameState {
     // Game data
@@ -98,30 +160,14 @@ export interface GameState {
     setShowExitPopup: (show: boolean) => void;
 }
 
-// Helper to convert card value (2-14) to rank
-export function valueToRank(value: number): Rank {
-    if (value >= 2 && value <= 10) return value.toString() as Rank;
-    if (value === 11) return 'J';
-    if (value === 12) return 'Q';
-    if (value === 13) return 'K';
-    if (value === 14) return 'A';
-    return '2';
-}
-
-// Helper to convert suit index to suit name
-export function indexToSuit(index: number): Suit {
-    const suits: Suit[] = ['spades', 'hearts', 'diamonds', 'clubs'];
-    return suits[index] || 'spades';
-}
-
 // Create the store
 export const useGameStore = create<GameState>((set, get) => ({
-    // Initial state
+    // Initial state — USDT0 defaults
     status: 'idle',
     roundId: null,
     currentCard: null,
     previousCard: null,
-    betAmount: '0.01',
+    betAmount: '1',      // 1 USDT0 default
     currentMultiplier: 10000, // 1x
     potentialWin: '0',
     roundNumber: 0,
@@ -160,11 +206,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     setLastPrediction: (prediction) => set({ lastPrediction: prediction }),
 
     // Update the PREVIOUS card's history entry with prediction and result
-    // This is called AFTER CardRevealed adds the new card, so we update index length-2
     updateLastHistoryEntry: (result) => set((state) => {
-        // Need at least 2 cards: the one we predicted FROM, and the new one
         if (state.cardHistory.length < 2) {
-            // If only 1 card (first card), just update it
             if (state.cardHistory.length === 1) {
                 const updated = [...state.cardHistory];
                 updated[0] = {
@@ -178,7 +221,6 @@ export const useGameStore = create<GameState>((set, get) => ({
         }
 
         const updated = [...state.cardHistory];
-        // Update the SECOND-TO-LAST entry (the card we predicted FROM)
         const predictionCardIndex = updated.length - 2;
         updated[predictionCardIndex] = {
             ...updated[predictionCardIndex],
@@ -189,15 +231,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     }),
 
     // Initialize history when resuming an existing round
-    // Only adds if history is empty (first load/resume)
     initializeHistoryFromContract: (card, multiplierBps) => set((state) => {
-        // Only initialize if history is empty and we have a valid card
         if (state.cardHistory.length > 0 || card.value === 0) return state;
         return {
             cardHistory: [{
                 card,
                 accumulatedMultiplier: multiplierBps,
-                // No prediction/result for the start card on resume
             }]
         };
     }),
@@ -229,12 +268,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     }),
 
     updateFromContract: (data) => {
-        const formatEther = (wei: bigint) => {
-            return (Number(wei) / 1e18).toFixed(4);
-        };
-
         if (!data.hasRound) {
-            // No active round
             set({
                 status: 'idle',
                 roundId: null,
@@ -255,7 +289,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             currentCard,
             roundNumber: data.roundNumber,
             currentMultiplier: Number(data.currentMultiplierBps),
-            potentialWin: formatEther(data.currentWinAmount),
+            potentialWin: formatTokenAmount(data.currentWinAmount),
             timeRemaining: Number(data.timeRemaining),
             higherMultiplier: Number(data.higherMultiplier),
             lowerMultiplier: Number(data.lowerMultiplier),

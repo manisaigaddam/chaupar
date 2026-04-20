@@ -1,6 +1,6 @@
 import { Howl } from 'howler';
 
-// Sound effect types
+// Sound effect types — Indian instrument theme
 type SoundName =
     | 'cardFlip'
     | 'cardDeal'
@@ -11,39 +11,39 @@ type SoundName =
     | 'chipStack'
     | 'countdown';
 
-// Sound configuration - using free placeholder URLs
-// Replace these with your actual sound files in /public/sounds/
+// Indian-themed sound configuration
+// Sounds in /public/sounds/ — tabla, shehnai, temple bell, sitar, tanpura, dholak
 const soundConfig: Record<SoundName, { src: string[]; volume: number }> = {
     cardFlip: {
-        src: ['/sounds/card-flip.mp3', '/sounds/card-flip.wav'],
+        src: ['/sounds/tabla-tap.mp3', '/sounds/tabla-tap.wav'],
         volume: 0.6,
     },
     cardDeal: {
-        src: ['/sounds/card-deal.mp3', '/sounds/card-deal.wav'],
+        src: ['/sounds/tabla-flick.mp3', '/sounds/tabla-flick.wav'],
         volume: 0.5,
     },
     win: {
-        src: ['/sounds/win.mp3', '/sounds/win.wav'],
+        src: ['/sounds/shehnai-flourish.mp3', '/sounds/shehnai-flourish.wav'],
         volume: 0.8,
     },
     lose: {
-        src: ['/sounds/lose.mp3', '/sounds/lose.wav'],
+        src: ['/sounds/sitar-descend.mp3', '/sounds/sitar-descend.wav'],
         volume: 0.5,
     },
     cashout: {
-        src: ['/sounds/cashout.mp3', '/sounds/cashout.wav'],
+        src: ['/sounds/temple-bell.mp3', '/sounds/temple-bell.wav'],
         volume: 0.7,
     },
     buttonClick: {
-        src: ['/sounds/click.mp3', '/sounds/click.wav'],
+        src: ['/sounds/dholak-tap.mp3', '/sounds/dholak-tap.wav'],
         volume: 0.3,
     },
     chipStack: {
-        src: ['/sounds/chips.mp3', '/sounds/chips.wav'],
+        src: ['/sounds/coins-jingle.mp3', '/sounds/coins-jingle.wav'],
         volume: 0.4,
     },
     countdown: {
-        src: ['/sounds/countdown.mp3', '/sounds/countdown.wav'],
+        src: ['/sounds/tanpura-drone.mp3', '/sounds/tanpura-drone.wav'],
         volume: 0.5,
     },
 };
@@ -84,7 +84,8 @@ class SoundManager {
             sound.volume(soundConfig[name].volume * this.volume);
             sound.play();
         } catch (error) {
-            console.warn(`Failed to play sound: ${name}`, error);
+            // Silently fail - sounds are non-critical
+            console.warn(`Sound unavailable: ${name}`);
         }
     }
 
