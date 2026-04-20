@@ -4,7 +4,7 @@ import { ERC20_ABI, HILO_GAME_ABI, getContractAddress, getUsdtAddress } from '@/
 import { useChainStore } from '@/stores/chainStore';
 import { formatTokenAmount, parseTokenAmount } from '@/stores/gameStore';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { maxUint256 } from 'viem';
 import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 
@@ -138,8 +138,18 @@ export function HousePoolTab() {
     ? ((Number(lpInfo.shares) / Number(lpInfo.totalShares)) * 100).toFixed(2)
     : '0';
 
+  // Auto-dismiss errors
+  useEffect(() => {
+    if (writeError) {
+      const timer = setTimeout(() => {
+        resetWrite();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [writeError, resetWrite]);
+
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-6 max-w-md mx-auto w-full">
+    <div className="p-4 space-y-6 max-w-md mx-auto w-full">
 
       {/* Pool Stats */}
       <div className="space-y-3">
@@ -278,16 +288,34 @@ export function HousePoolTab() {
         </p>
       </div>
 
-      {/* Error */}
+      {/* Error Toast Notification */}
       <AnimatePresence>
         {writeError && (
           <motion.div
-            className="bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg text-xs text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            className="fixed top-16 left-1/2 -translate-x-1/2 z-[100] bg-zinc-950/95 backdrop-blur-md border border-red-900/50 shadow-[0_0_30px_rgba(220,38,38,0.15)] text-red-200 px-5 py-4 rounded-xl text-sm max-w-[90vw] md:max-w-md w-full flex items-start gap-3"
+            initial={{ opacity: 0, y: -20, scale: 0.95, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+            exit={{ opacity: 0, y: -20, scale: 0.95, x: '-50%' }}
           >
-            {writeError.message.slice(0, 120)}
+            <div className="text-red-500 text-lg mt-0.5">⚠️</div>
+            <div className="flex-1 flex flex-col pt-0.5">
+              <div className="font-bold text-red-400 tracking-wide text-xs uppercase" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+                त्रुटि / Error
+              </div>
+              <div className="text-sm opacity-90 leading-snug mt-1">
+                {writeError.message.toLowerCase().includes('user rejected') 
+                  ? 'Transaction cancelled by user.' 
+                  : writeError.message.toLowerCase().includes('insufficientliquidity')
+                  ? 'Pool liquidity locked in active games.'
+                  : writeError.message.toLowerCase().includes('insufficient funds')
+                  ? 'Not enough USDT0 balance.'
+                  : writeError.message.slice(0, 120)}
+              </div>
+            </div>
+            <button 
+              onClick={() => resetWrite()} 
+              className="text-zinc-500 hover:text-white p-1"
+            >✕</button>
           </motion.div>
         )}
       </AnimatePresence>

@@ -559,10 +559,10 @@ export function HiloGame() {
 
   // Main game UI
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="h-screen bg-black text-white flex flex-col overflow-hidden">
 
       {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border-b border-zinc-800 gap-2">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border-b border-zinc-800 gap-2 shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="font-bold text-lg tracking-tight" style={{ fontFamily: 'Cormorant Garamond, serif' }}>चौपड़</span>
@@ -590,7 +590,7 @@ export function HiloGame() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide shrink-0">
           {/* Dual Balance — stacks on mobile */}
           <div className="flex items-center gap-1.5 sm:gap-2 bg-zinc-900/80 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-zinc-800 flex-shrink-0">
             <span className="text-amber-400 text-xs sm:text-sm font-medium whitespace-nowrap">
@@ -631,7 +631,7 @@ export function HiloGame() {
       </header>
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-zinc-800">
+      <div className="flex border-b border-zinc-800 shrink-0">
         <button
           onClick={() => setActiveTab('game')}
           className={`flex-1 py-3 text-sm font-medium transition-colors ${
@@ -656,15 +656,15 @@ export function HiloGame() {
 
       {/* Pool Tab */}
       {activeTab === 'pool' && (
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto min-h-0 bg-zinc-950">
           <HousePoolTab />
         </div>
       )}
 
       {/* Game Tab */}
       {activeTab === 'game' && (
-        <>
-          <main className="flex-1 flex flex-col items-center justify-center p-4 gap-6">
+        <div className="flex-1 flex flex-col overflow-y-auto min-h-0">
+          <main className="flex-1 flex flex-col items-center justify-center p-4 gap-6 min-h-max">
 
             {/* Multiplier Display */}
             {roundNumber > 0 && (
@@ -890,20 +890,28 @@ export function HiloGame() {
               </div>
             )}
 
-            {/* Error display */}
+            {/* Error Toast Notification */}
             <AnimatePresence>
               {(error || writeError) && (
                 <motion.div
-                  className="bg-red-500/10 border border-red-500/20 text-red-400
-                    px-4 py-3 rounded-lg text-sm max-w-sm text-center"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+                  className="fixed top-16 left-1/2 -translate-x-1/2 z-[100] bg-zinc-950/95 backdrop-blur-md border border-red-900/50 shadow-[0_0_30px_rgba(220,38,38,0.15)] text-red-200 px-5 py-4 rounded-xl text-sm max-w-[90vw] md:max-w-md w-full flex items-start gap-3"
+                  initial={{ opacity: 0, y: -20, scale: 0.95, x: '-50%' }}
+                  animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+                  exit={{ opacity: 0, y: -20, scale: 0.95, x: '-50%' }}
                 >
-                  <div className="font-medium mb-1">⚠️ Error</div>
-                  <div className="text-xs opacity-80">
-                    {error || (writeError ? parseContractError(writeError) : '')}
+                  <div className="text-red-500 text-lg mt-0.5">⚠️</div>
+                  <div className="flex-1 flex flex-col pt-0.5">
+                    <div className="font-bold text-red-400 tracking-wide text-xs uppercase" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+                      त्रुटि / Error
+                    </div>
+                    <div className="text-sm opacity-90 leading-snug mt-1">
+                      {error || (writeError ? parseContractError(writeError) : '')}
+                    </div>
                   </div>
+                  <button 
+                    onClick={() => { setError(null); resetWrite(); }} 
+                    className="text-zinc-500 hover:text-white p-1"
+                  >✕</button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -915,7 +923,7 @@ export function HiloGame() {
               <HistoryTab entries={cardHistory} />
             </footer>
           )}
-        </>
+        </div>
       )}
 
       {/* Active Round Popup */}
